@@ -130,3 +130,26 @@ def train_bpe(
     return vocab, merges
 
 
+def _pretokenize_chunk_myself(chunk: str, special_tokens: list[str]) -> dict[tuple[bytes,...], int]:
+    """split a set of chunks to become a set of pre-tokens and count their frequencies."""
+    word_freqs: dict[tuple[bytes,...], int] = defaultdict(int)
+    if special_tokens:
+        pattern = "|".join(re.escape(tok) for tok in special_tokens)
+        segments = re.split(pattern, chunk)
+    else:
+        segments = [chunk]
+    
+    for segment in segments:
+        for match in re.finditer(segment, GPT2_PAT):
+            word = match.group()
+            token_bytes = tuple(bytes([b]) for b in word.encode("utf-8"))
+            word_freqs[token_bytes] += 1
+            
+    return word_freqs
+
+def train_bge_myself(
+        input_path: str | os.PathLike,
+        vocab_size: int,
+        special_tokens: list[str],
+) -> tuple[dict[int,bytes], list[tuple[bytes,bytes]]]:\
+    return {}
